@@ -51,7 +51,7 @@ public class JwtTokenProvider {
         UserDetails principal = (UserDetails) authentication.getPrincipal();
         String tenantId = (principal instanceof UserPrincipal userPrincipal)
                 ? userPrincipal.getTenantId()
-                : TenantContext.getTenantId();
+                : String.valueOf(TenantContext.getTenantId());
 
         String roles = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -61,19 +61,19 @@ public class JwtTokenProvider {
     }
 
     public String generateAccessToken(String username, String roles) {
-        return generateAccessToken(username, roles, TenantContext.getTenantId());
+        return generateAccessToken(username, roles, TenantContext.getTenantId().toString());
     }
 
     public String generateAccessToken(String username, String roles, String tenantId) {
-        return generateToken(username, roles, tenantId != null ? tenantId : TenantContext.getTenantId(), jwtExpirationInMs);
+        return generateToken(username, roles, tenantId != null ? tenantId : TenantContext.getTenantId().toString(), jwtExpirationInMs);
     }
 
     public String generateRefreshToken(String username) {
-        return generateRefreshToken(username, TenantContext.getTenantId());
+        return generateRefreshToken(username, TenantContext.getTenantId().toString());
     }
 
     public String generateRefreshToken(String username, String tenantId) {
-        return generateToken(username, null, tenantId != null ? tenantId : TenantContext.getTenantId(), refreshExpirationInMs);
+        return generateToken(username, null, tenantId != null ? tenantId : TenantContext.getTenantId().toString(), refreshExpirationInMs);
     }
 
     private String generateToken(String username, String roles, String tenantId, long expirationTime) {
@@ -127,7 +127,7 @@ public class JwtTokenProvider {
                 .getPayload();
 
         String tenantId = claims.get("tenantId", String.class);
-        return (tenantId != null && !tenantId.isBlank()) ? tenantId : TenantContext.DEFAULT_TENANT_ID;
+        return (tenantId != null && !tenantId.isBlank()) ? tenantId : TenantContext.DEFAULT_TENANT_ID.toString();
     }
 
     public boolean validateToken(String authToken) {

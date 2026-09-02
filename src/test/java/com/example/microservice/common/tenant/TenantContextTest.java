@@ -4,6 +4,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class TenantContextTest {
@@ -21,7 +23,7 @@ class TenantContextTest {
 
     @Test
     void testSetAndGetTenantId() {
-        TenantContext.setTenantId("tenant-alpha");
+        TenantContext.setTenantId(UUID.fromString("tenant-alpha"));
         assertEquals("tenant-alpha", TenantContext.getTenantId());
     }
 
@@ -30,13 +32,13 @@ class TenantContextTest {
         TenantContext.setTenantId(null);
         assertEquals(TenantContext.DEFAULT_TENANT_ID, TenantContext.getTenantId());
 
-        TenantContext.setTenantId("  ");
+        TenantContext.setTenantId(UUID.fromString("  "));
         assertEquals(TenantContext.DEFAULT_TENANT_ID, TenantContext.getTenantId());
     }
 
     @Test
     void testClearContext() {
-        TenantContext.setTenantId("tenant-beta");
+        TenantContext.setTenantId(UUID.fromString("tenant-beta"));
         assertEquals("tenant-beta", TenantContext.getTenantId());
 
         TenantContext.clear();

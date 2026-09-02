@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,10 +42,18 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest loginRequest) {
+//        if (StringUtils.hasText(loginRequest.getTenantId())) {
+//            TenantContext.setTenantId(loginRequest.getTenantId());
+//        }
+//        String tenantId = String.valueOf(TenantContext.getTenantId());
+
         if (StringUtils.hasText(loginRequest.getTenantId())) {
-            TenantContext.setTenantId(loginRequest.getTenantId());
+            TenantContext.setTenantId(
+                    UUID.fromString(loginRequest.getTenantId())
+            );
         }
-        String tenantId = TenantContext.getTenantId();
+
+        UUID tenantId = TenantContext.getTenantId();
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -56,7 +65,7 @@ public class AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String accessToken = tokenProvider.generateAccessToken(authentication);
-        String refreshToken = tokenProvider.generateRefreshToken(loginRequest.getUsername(), tenantId);
+        String refreshToken = tokenProvider.generateRefreshToken(loginRequest.getUsername(), tenantId.toString());
 
         List<String> roles = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -67,18 +76,25 @@ public class AuthService {
                 .refreshToken(refreshToken)
                 .tokenType("Bearer")
                 .username(loginRequest.getUsername())
-                .tenantId(tenantId)
+                .tenantId(tenantId.toString())
                 .roles(roles)
                 .build();
     }
 
     public AuthResponse register(RegisterRequest registerRequest) {
+//        if (StringUtils.hasText(registerRequest.getTenantId())) {
+//            TenantContext.setTenantId(registerRequest.getTenantId());
+//        }
+//        String tenantId = String.valueOf(TenantContext.getTenantId());
         if (StringUtils.hasText(registerRequest.getTenantId())) {
-            TenantContext.setTenantId(registerRequest.getTenantId());
+            TenantContext.setTenantId(
+                    UUID.fromString(registerRequest.getTenantId())
+            );
         }
-        String tenantId = TenantContext.getTenantId();
 
-        if (customUserDetailsService.existsByUsernameAndTenant(registerRequest.getUsername(), tenantId)) {
+        UUID tenantId = TenantContext.getTenantId();
+
+        if (customUserDetailsService.existsByUsernameAndTenant(registerRequest.getUsername(), tenantId.toString())) {
             throw new BadRequestException(String.format("Username '%s' is already taken in tenant '%s'", registerRequest.getUsername(), tenantId));
         }
 
@@ -91,10 +107,10 @@ public class AuthService {
                 registerRequest.getEmail(),
                 passwordEncoder.encode(registerRequest.getPassword()),
                 roles,
-                tenantId
+                tenantId.toString()
         );
 
-        return login(new LoginRequest(registerRequest.getUsername(), registerRequest.getPassword(), tenantId));
+        return login(new LoginRequest(registerRequest.getUsername(), registerRequest.getPassword(), tenantId.toString()));
     }
 
     public AuthResponse refreshToken(TokenRefreshRequest refreshRequest) {
@@ -105,7 +121,7 @@ public class AuthService {
 
         String username = tokenProvider.getUsernameFromJWT(token);
         String tenantId = tokenProvider.getTenantIdFromJWT(token);
-        TenantContext.setTenantId(tenantId);
+        TenantContext.setTenantId(UUID.fromString(tenantId));
 
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
 

@@ -18,6 +18,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.UUID;
 
 /**
  * Filter that intercepts incoming HTTP requests, extracts the JWT token from the Authorization header,
@@ -49,7 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 // Synchronize TenantContext with JWT claim
                 if (StringUtils.hasText(tenantId)) {
-                    TenantContext.setTenantId(tenantId);
+                    TenantContext.setTenantId(UUID.fromString(tenantId));
                 }
 
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);

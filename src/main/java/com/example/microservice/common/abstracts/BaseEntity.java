@@ -10,7 +10,9 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * Base abstract entity with automatic tenant isolation, auditing columns, and optimistic locking.
@@ -22,11 +24,11 @@ public abstract class BaseEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     @TenantId
     @Column(name = "tenant_id", nullable = false, updatable = false)
-    private String tenantId;
+    private UUID tenantId;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -48,26 +50,43 @@ public abstract class BaseEntity implements Serializable {
     @Column(name = "version")
     private Long version;
 
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = false;
+
+    @Column(name = "deleted_at")
+    private LocalDate deletedAt;
+
+    @Column(name = "deleted_by")
+    private String deletedBy;
+
+//    @PrePersist
+//    public void prePersistTenant() {
+//        if (this.tenantId == null || this.tenantId.isBlank()) {
+//            this.tenantId = TenantContext.getTenantId();
+//        }
+//    }
+
     @PrePersist
     public void prePersistTenant() {
-        if (this.tenantId == null || this.tenantId.isBlank()) {
+        if (this.tenantId == null) {
             this.tenantId = TenantContext.getTenantId();
         }
     }
 
-    public Long getId() {
+
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
-    public String getTenantId() {
+    public UUID getTenantId() {
         return tenantId;
     }
 
-    public void setTenantId(String tenantId) {
+    public void setTenantId(UUID tenantId) {
         this.tenantId = tenantId;
     }
 
@@ -101,6 +120,30 @@ public abstract class BaseEntity implements Serializable {
 
     public void setUpdatedBy(String updatedBy) {
         this.updatedBy = updatedBy;
+    }
+
+    public Boolean getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    public LocalDate getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(LocalDate deletedAt) {
+        this.deletedAt = deletedAt;
+    }
+
+    public String getDeletedBy() {
+        return deletedBy;
+    }
+
+    public void setDeletedBy(String deletedBy) {
+        this.deletedBy = deletedBy;
     }
 
     public Long getVersion() {

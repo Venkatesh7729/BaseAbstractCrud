@@ -16,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Generic Abstract Controller exposing standard CRUD REST API endpoints with Multi-Tenancy support.
@@ -64,7 +65,11 @@ public abstract class AbstractController<T, ID, REQ_DTO, RES_DTO> {
     /**
      * Get the active tenant identifier from TenantContext.
      */
-    protected String getCurrentTenantId() {
+//    protected String getCurrentTenantId() {
+//        return TenantContext.getTenantId();
+//    }
+
+    protected UUID getCurrentTenantId() {
         return TenantContext.getTenantId();
     }
 

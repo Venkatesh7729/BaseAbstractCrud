@@ -41,10 +41,13 @@ public class LoginRequest {
         this.password = password;
     }
 
+//    public CharSequence getTenantId() {
+//        return tenantId;
+//    }
+
     public String getTenantId() {
         return tenantId;
     }
-
     public void setTenantId(String tenantId) {
         this.tenantId = tenantId;
     }

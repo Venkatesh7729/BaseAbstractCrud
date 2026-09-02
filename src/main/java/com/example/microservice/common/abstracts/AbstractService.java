@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Generic Abstract Service providing reusable CRUD logic for any domain entity
@@ -61,15 +62,30 @@ public abstract class AbstractService<T, ID, REQ_DTO, RES_DTO> implements BaseSe
     /**
      * Get the current active tenant identifier from TenantContext.
      */
-    protected String getCurrentTenantId() {
-        return TenantContext.getTenantId();
+//    protected String getCurrentTenantId() {
+//        return TenantContext.getTenantId();
+//    }
+
+    protected UUID getCurrentTenantId() {
+        UUID tenantId = TenantContext.getTenantId();
+
+        if (tenantId == null) {
+            throw new IllegalStateException("Tenant ID is not available");
+        }
+
+        return tenantId;
     }
 
     @Override
     @Transactional
     public RES_DTO create(REQ_DTO requestDto) {
         T entity = toEntity(requestDto);
-        if (entity instanceof BaseEntity baseEntity && (baseEntity.getTenantId() == null || baseEntity.getTenantId().isBlank())) {
+//        if (entity instanceof BaseEntity baseEntity && (baseEntity.getTenantId() == null || baseEntity.getTenantId().isBlank())) {
+//            baseEntity.setTenantId(getCurrentTenantId());
+//        }
+        if (entity instanceof BaseEntity baseEntity
+                && baseEntity.getTenantId() == null) {
+
             baseEntity.setTenantId(getCurrentTenantId());
         }
         beforeCreate(entity, requestDto);

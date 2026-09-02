@@ -31,7 +31,7 @@ public class UserPrincipal implements UserDetails, OAuth2User {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.tenantId = (tenantId != null && !tenantId.isBlank()) ? tenantId : TenantContext.DEFAULT_TENANT_ID;
+        this.tenantId = (tenantId != null && !tenantId.isBlank()) ? tenantId : TenantContext.DEFAULT_TENANT_ID.toString();
         this.authorities = authorities;
         this.attributes = attributes != null ? attributes : Collections.emptyMap();
     }
@@ -53,7 +53,7 @@ public class UserPrincipal implements UserDetails, OAuth2User {
     }
 
     public static UserPrincipal create(String username, String email, String password, List<String> roles) {
-        return create(username, email, password, roles, TenantContext.getTenantId());
+        return create(username, email, password, roles, TenantContext.getTenantId().toString());
     }
 
     public static UserPrincipal create(String username, String email, String password, List<String> roles, String tenantId) {
@@ -66,14 +66,14 @@ public class UserPrincipal implements UserDetails, OAuth2User {
                 .username(username)
                 .email(email != null ? email : username)
                 .password(password)
-                .tenantId(tenantId != null ? tenantId : TenantContext.getTenantId())
+                .tenantId(tenantId != null ? tenantId : String.valueOf(TenantContext.getTenantId()))
                 .authorities(authorities)
                 .attributes(Collections.emptyMap())
                 .build();
     }
 
     public static UserPrincipal create(OAuth2User oAuth2User, String registrationId) {
-        return create(oAuth2User, registrationId, TenantContext.getTenantId());
+        return create(oAuth2User, registrationId, TenantContext.getTenantId().toString());
     }
 
     public static UserPrincipal create(OAuth2User oAuth2User, String registrationId, String tenantId) {
@@ -95,7 +95,7 @@ public class UserPrincipal implements UserDetails, OAuth2User {
                 .username(username)
                 .email(email)
                 .password("")
-                .tenantId(tenantId != null ? tenantId : TenantContext.getTenantId())
+                .tenantId(tenantId != null ? tenantId : TenantContext.getTenantId().toString())
                 .authorities(List.of(new SimpleGrantedAuthority("ROLE_USER")))
                 .attributes(attributes)
                 .build();

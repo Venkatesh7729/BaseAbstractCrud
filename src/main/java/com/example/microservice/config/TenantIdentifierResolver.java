@@ -8,19 +8,26 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Hibernate CurrentTenantIdentifierResolver bridge that hooks Hibernate's
  * tenant scoping to TenantContext.
  */
 @Component
-public class TenantIdentifierResolver implements CurrentTenantIdentifierResolver<String>, HibernatePropertiesCustomizer {
+public class TenantIdentifierResolver implements CurrentTenantIdentifierResolver<UUID>, HibernatePropertiesCustomizer {
+
+//    @Override
+//    public String resolveCurrentTenantIdentifier() {
+//        UUID tenantId = TenantContext.getTenantId();
+//        return StringUtils.hasText(String.valueOf(tenantId)) ? String.valueOf(tenantId) : TenantContext.DEFAULT_TENANT_ID.toString();
+//    }
 
     @Override
-    public String resolveCurrentTenantIdentifier() {
-        String tenantId = TenantContext.getTenantId();
-        return StringUtils.hasText(tenantId) ? tenantId : TenantContext.DEFAULT_TENANT_ID;
+    public UUID resolveCurrentTenantIdentifier() {
+        return TenantContext.getTenantId();
     }
+
 
     @Override
     public boolean validateExistingCurrentSessions() {
